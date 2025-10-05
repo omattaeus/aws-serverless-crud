@@ -1,0 +1,11 @@
+version = 0.1
+
+[default.deploy.parameters]
+stack_name = "employees-api"
+resolve_s3 = true
+s3_prefix = "employees-api"
+region = "us-east-2"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "ExistingTableName=\"employee\" JwtIssuer=\"https://cognito-idp.us-east-2.amazonaws.com/us-east-2_boItHd6r6\" JwtAudience=\"ac02jug3jsrsegf3qmdjkoo5n\""
+image_repositories = []

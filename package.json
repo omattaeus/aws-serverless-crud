@@ -1,10 +1,9 @@
 {
   "name": "aws-serverless-crud",
   "version": "1.0.0",
-  "type": "module",
   "scripts": {
-    "build": "esbuild src/handlers/http.ts --bundle --platform=node --target=node22 --outdir=dist --external:aws-sdk",
-    "watch": "esbuild src/handlers/http.ts --bundle --platform=node --target=node22 --outdir=dist --external:aws-sdk --watch",
+    "build": "mkdir -p dist/handlers && esbuild src/handlers/http.ts --bundle --platform=node --target=node22 --format=cjs --outfile=dist/handlers/http.js --external:aws-sdk && cp dist/handlers/http.js .",
+    "watch": "mkdir -p dist/handlers && esbuild src/handlers/http.ts --bundle --platform=node --target=node22 --format=cjs --outfile=dist/handlers/http.js --external:aws-sdk --watch",
     "sam:build": "npm run build && sam build",
     "sam:deploy": "sam deploy --guided"
   },

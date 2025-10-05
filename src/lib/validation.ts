@@ -2,6 +2,7 @@ export type Employee = {
   employee_id: string;
   name: string;
   role?: string;
+  ownerId: string;
   createdAt: string;
   updatedAt: string;
 };

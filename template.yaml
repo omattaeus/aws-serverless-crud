@@ -1,16 +1,18 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Employee Management API - Serverless CRUD operations
+Description: 'Employee Management API - Serverless CRUD operations'
 
 Parameters:
   ExistingTableName:
     Type: String
     Default: employee
-    Description: DynamoDB table name for employee data
-  RegionParam:
+    Description: 'DynamoDB table name for employee data'
+  JwtIssuer:
     Type: String
-    Default: us-east-2
-    Description: AWS region for deployment
+    Description: 'Cognito Issuer URL (ex: https://cognito-idp.us-east-2.amazonaws.com/us-east-2_XXXXXXX)'
+  JwtAudience:
+    Type: String
+    Description: 'Cognito App Client ID (ex: ac02jug3jsrsegf3qmdjkoo5n)'
 
 Globals:
   Function:
@@ -29,21 +31,26 @@ Resources:
     Type: AWS::Serverless::HttpApi
     Properties:
       CorsConfiguration:
-        AllowOrigins:
-          - "*"
-        AllowHeaders:
-          - "Content-Type"
-          - "Authorization"
-          - "X-Requested-With"
+        AllowOrigins: ['*']
+        AllowHeaders: ['Content-Type','Authorization','X-Requested-With']
         AllowMethods: [ GET, POST, PUT, DELETE, OPTIONS ]
         MaxAge: 86400
+      Auth:
+        DefaultAuthorizer: CognitoJwt
+        Authorizers:
+          CognitoJwt:
+            IdentitySource: "$request.header.Authorization"
+            JwtConfiguration:
+              issuer: !Ref JwtIssuer
+              audience:
+                - !Ref JwtAudience
 
   ItemsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: dist/handlers/http.handler
+      Handler: http.handler
       CodeUri: .
-      Description: Employee API Lambda function
+      Description: 'Employee API Lambda function'
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref ExistingTableName
@@ -61,8 +68,11 @@ Resources:
 
 Outputs:
   ApiEndpoint:
-    Description: Employee API Gateway endpoint URL
+    Description: 'Employee API Gateway endpoint URL'
     Value: !Sub "https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com"
+  ApiId:
+    Description: 'HTTP API ID'
+    Value: !Ref HttpApi
   TableName:
-    Description: Employee DynamoDB table name
+    Description: 'Employee DynamoDB table name'
     Value: !Ref ExistingTableName

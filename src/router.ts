@@ -1,4 +1,4 @@
-export type Route = { method: string; path: RegExp; handler: (params: Record<string,string>, body: any) => Promise<{statusCode:number; body: any}> };
+export type Route = { method: string; path: RegExp; handler: (params: Record<string,string>, body: any, userId: string) => Promise<{statusCode:number; body: any}> };
 
 export function matchRoute(method: string, rawPath: string, routes: Route[]) {
   for (const r of routes) {
