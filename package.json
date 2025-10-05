@@ -1,0 +1,23 @@
+{
+  "name": "aws-serverless-crud",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "esbuild src/handlers/http.ts --bundle --platform=node --target=node22 --outdir=dist --external:aws-sdk",
+    "watch": "esbuild src/handlers/http.ts --bundle --platform=node --target=node22 --outdir=dist --external:aws-sdk --watch",
+    "sam:build": "npm run build && sam build",
+    "sam:deploy": "sam deploy --guided"
+  },
+  "engines": { "node": ">=22" },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.129",
+    "@types/node": "^20.0.0",
+    "esbuild": "^0.23.0",
+    "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.637.0",
+    "@aws-sdk/lib-dynamodb": "^3.637.0",
+    "ulid": "^2.3.0"
+  }
+}

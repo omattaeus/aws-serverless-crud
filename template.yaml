@@ -1,0 +1,68 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Employee Management API - Serverless CRUD operations
+
+Parameters:
+  ExistingTableName:
+    Type: String
+    Default: employee
+    Description: DynamoDB table name for employee data
+  RegionParam:
+    Type: String
+    Default: us-east-2
+    Description: AWS region for deployment
+
+Globals:
+  Function:
+    Runtime: nodejs22.x
+    MemorySize: 256
+    Timeout: 10
+    Tracing: Active
+    Environment:
+      Variables:
+        TABLE_NAME: !Ref ExistingTableName
+    Architectures:
+      - arm64
+
+Resources:
+  HttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowOrigins:
+          - "*"
+        AllowHeaders:
+          - "Content-Type"
+          - "Authorization"
+          - "X-Requested-With"
+        AllowMethods: [ GET, POST, PUT, DELETE, OPTIONS ]
+        MaxAge: 86400
+
+  ItemsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: dist/handlers/http.handler
+      CodeUri: .
+      Description: Employee API Lambda function
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ExistingTableName
+      Events:
+        AnyRoute:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /{proxy+}
+            Method: ANY
+      Environment:
+        Variables:
+          POWERTOOLS_LOG_LEVEL: INFO
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
+
+Outputs:
+  ApiEndpoint:
+    Description: Employee API Gateway endpoint URL
+    Value: !Sub "https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com"
+  TableName:
+    Description: Employee DynamoDB table name
+    Value: !Ref ExistingTableName
